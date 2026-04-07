@@ -1009,15 +1009,15 @@ export function issueService(db: Db) {
 
       // Pagination support
       const pageSize = filters?.limit != null
-        ? Math.max(1, Math.min(200, filters.limit))
+        ? Math.max(1, Math.min(200, Math.floor(filters.limit)))
         : undefined;
 
       if (filters?.cursor) {
         // Keyset pagination: skip past the cursor issue using composite sort key.
         // We use a sub-select to look up the cursor row's sort values.
-        const cursorPriority = sql`(SELECT CASE ${issues.priority} WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 ELSE 4 END FROM ${issues} WHERE ${issues.id} = ${filters.cursor})`;
-        const cursorActivity = sql`(SELECT ${issueCanonicalLastActivityAtExpr(companyId)} FROM ${issues} WHERE ${issues.id} = ${filters.cursor})`;
-        const cursorUpdatedAt = sql`(SELECT ${issues.updatedAt} FROM ${issues} WHERE ${issues.id} = ${filters.cursor})`;
+        const cursorPriority = sql`(SELECT CASE ${issues.priority} WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 ELSE 4 END FROM ${issues} WHERE ${issues.id} = ${filters.cursor} AND ${issues.companyId} = ${companyId})`;
+        const cursorActivity = sql`(SELECT ${issueCanonicalLastActivityAtExpr(companyId)} FROM ${issues} WHERE ${issues.id} = ${filters.cursor} AND ${issues.companyId} = ${companyId})`;
+        const cursorUpdatedAt = sql`(SELECT ${issues.updatedAt} FROM ${issues} WHERE ${issues.id} = ${filters.cursor} AND ${issues.companyId} = ${companyId})`;
 
         // For non-search: ORDER BY priorityOrder ASC, priorityOrder ASC, canonicalLastActivityAt DESC, updatedAt DESC
         // Keyset condition: (priorityOrder, -canonicalLastActivityAt, -updatedAt, id) > (cursorPriority, -cursorActivity, -cursorUpdatedAt, cursorId)
