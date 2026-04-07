@@ -29,7 +29,6 @@ import { loadConfig } from "./config.js";
 import { logger } from "./middleware/logger.js";
 import { setupLiveEventsWebSocketServer } from "./realtime/live-events-ws.js";
 import {
-  dagExecutorService,
   feedbackService,
   heartbeatService,
   reconcilePersistedRuntimeServicesOnStartup,
@@ -638,20 +637,6 @@ export async function startServer(): Promise<StartedServer> {
         });
     }, config.heartbeatSchedulerIntervalMs);
 
-    // DAG executor: sweep for idle issues and detect stalls every 30s
-    const dagExecutor = dagExecutorService({ db: db as any, heartbeat });
-    setInterval(() => {
-      void dagExecutor
-        .tick()
-        .then((result) => {
-          if (result.swept > 0 || result.stalls > 0) {
-            logger.info({ ...result }, "DAG executor tick");
-          }
-        })
-        .catch((err) => {
-          logger.error({ err }, "DAG executor tick failed");
-        });
-    }, 30_000);
   }
   
   if (config.databaseBackupEnabled) {
