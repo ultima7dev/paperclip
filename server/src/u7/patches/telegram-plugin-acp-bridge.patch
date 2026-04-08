@@ -1,0 +1,23 @@
+--- /tmp/telegram-plugin-npm/package/dist/acp-bridge.js	1985-10-26 05:15:00.000000000 -0300
++++ /tmp/telegram-plugin-fix/acp-bridge.js	2026-04-08 02:01:47.184680195 -0300
+@@ -392,7 +392,8 @@
+ }
+ // --- ACP output handler (sequenced, labeled) ---
+ export async function handleAcpOutput(ctx, token, event) {
+-    const { sessionId, chatId, threadId, text, done } = event;
++    const { sessionId, chatId, threadId, done } = event;
++    const text = event.text ?? "";
+     const sessions = await getSessions(ctx, chatId, threadId);
+     const session = sessions.find((s) => s.sessionId === sessionId);
+     const displayName = session?.agentDisplayName ?? "Agent";
+@@ -497,6 +498,10 @@
+ // --- Send labeled output ---
+ const TELEGRAM_MAX_LENGTH = 4000; // Leave room for prefix/label overhead
+ async function sendLabeledOutput(ctx, token, chatId, threadId, sessionId, displayName, text, done) {
++    if (!text) {
++        ctx.logger.warn("sendLabeledOutput called with empty/undefined text", { sessionId, done });
++        return;
++    }
+     const prefix = done
+         ? escapeMarkdownV2("\u2705")
+         : escapeMarkdownV2("\ud83e\udd16");

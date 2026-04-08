@@ -1,0 +1,11 @@
+--- /tmp/telegram-plugin-npm/package/dist/worker.js	1985-10-26 05:15:00.000000000 -0300
++++ /tmp/telegram-plugin-fix/worker.js	2026-04-08 02:02:13.406486633 -0300
+@@ -578,7 +578,7 @@
+         if (handledCustom)
+             return;
+         // Built-in commands
+-        await handleCommand(ctx, token, chatId, command, args, threadId, baseUrl, publicUrl);
++        await handleCommand(ctx, token, chatId, command, args, threadId, baseUrl, publicUrl, companyId);
+         return;
+     }
+     if (config.enableInbound && msg.reply_to_message?.from?.is_bot) {

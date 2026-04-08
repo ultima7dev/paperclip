@@ -1,0 +1,20 @@
+--- /tmp/telegram-plugin-npm/package/dist/commands.js	1985-10-26 05:15:00.000000000 -0300
++++ /tmp/telegram-plugin-fix/commands.js	2026-04-08 02:02:04.379553267 -0300
+@@ -12,7 +12,7 @@
+     { command: "acp", description: "Manage agent sessions (spawn, status, cancel, close)" },
+     { command: "commands", description: "Manage custom workflow commands (list, import, run, delete)" },
+ ];
+-export async function handleCommand(ctx, token, chatId, command, args, messageThreadId, baseUrl, publicUrl) {
++export async function handleCommand(ctx, token, chatId, command, args, messageThreadId, baseUrl, publicUrl, companyId) {
+     await ctx.metrics.write(METRIC_NAMES.commandsHandled, 1);
+     switch (command) {
+         case "status":
+@@ -37,7 +37,7 @@
+             await handleConnectTopic(ctx, token, chatId, args, messageThreadId);
+             break;
+         case "acp":
+-            await handleAcpCommand(ctx, token, chatId, args, messageThreadId);
++            await handleAcpCommand(ctx, token, chatId, args, messageThreadId, companyId);
+             break;
+         default:
+             await sendMessage(ctx, token, chatId, `Unknown command: /${command}. Try /help`, {
